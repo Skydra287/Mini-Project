@@ -515,7 +515,6 @@ int currentAvailability = Carrentalapp.carAvailability.getOrDefault(carType, new
 
 // Rental Duration Screen class
 class RentalDurationScreen extends JFrame {
-    
     private String startDateStr; // To store the rental start date as a string
     private int days;
     String name, email, phone, carType;
@@ -576,49 +575,46 @@ class RentalDurationScreen extends JFrame {
         JButton nextBtn = new JButton("Next");
         nextBtn.setBackground(Color.GREEN);
         nextBtn.setForeground(Color.WHITE);
-      nextBtn.addActionListener(e -> {
-    try {
-        // Parse the number of rental days
-        int days = Integer.parseInt(daysField.getText());
+        nextBtn.addActionListener(e -> {
+            try {
+                // Parse the number of rental days
+                int days = Integer.parseInt(daysField.getText());
 
-        // Get the start date from the date chooser
-        Date startDate = dateChooser.getDate();
-        if (startDate == null) {
-            JOptionPane.showMessageDialog(this, "Please select a start date.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+                // Get the start date from the date chooser
+                Date startDate = dateChooser.getDate();
+                if (startDate == null) {
+                    JOptionPane.showMessageDialog(this, "Please select a start date.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-        // Format startDate and calculate endDate
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        String startDateStr = dateFormat.format(startDate);
+                // Format startDate and calculate endDate
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                String startDateStr = dateFormat.format(startDate);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(Calendar.DAY_OF_MONTH, days - 1); // Subtract 1 to include the start date in the rental period
-        String endDateStr = dateFormat.format(calendar.getTime());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(startDate);
+                calendar.add(Calendar.DAY_OF_MONTH, days - 1); // Subtract 1 to include the start date in the rental period
+                String endDateStr = dateFormat.format(calendar.getTime());
 
-        // Proceed to the CarSelectionScreen
-        dispose();
-        new CarSelectionScreen(name, email, phone, age, startDateStr, days);
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Please enter a valid number of rental days.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
-
-
+                // Proceed to the CarSelectionScreen
+                dispose();
+                new CarSelectionScreen(name, email, phone, age, startDateStr, days);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid number of rental days.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         buttonPanel.add(nextBtn);
 
-        // Cancel Button to go back or cancel rent
-        JButton cancelBtn = new JButton("Cancel Rent");
-        cancelBtn.setBackground(Color.RED);
-        cancelBtn.setForeground(Color.WHITE);
-        cancelBtn.addActionListener(e -> {
+        // Back Button
+        JButton backBtn = new JButton("Back");
+        backBtn.setBackground(Color.ORANGE);
+        backBtn.setForeground(Color.WHITE);
+        backBtn.addActionListener(e -> {
             dispose(); // Close the current screen
-            new CarSelectionScreen(name, email, phone, age, startDateStr, days); // Return to the Car Selection screen
-            JOptionPane.showMessageDialog(this, "Rental process canceled.", "Cancel", JOptionPane.INFORMATION_MESSAGE);
+            new IDDetailsScreen(); // Redirect to the IDDetailsScreen
         });
-        buttonPanel.add(cancelBtn);
+        buttonPanel.add(backBtn);
 
         // Add main panel and button panel to the frame
         add(mainPanel, BorderLayout.CENTER);
@@ -631,6 +627,7 @@ class RentalDurationScreen extends JFrame {
         setVisible(true);
     }
 }
+
 
 
 
@@ -812,9 +809,6 @@ private void processPayment(String name, String email, String phone, String carT
 
 
 
-
-
-
 // RentalSummaryScreen class
 class RentalSummaryScreen extends JFrame {
     RentalSummaryScreen(String name, String email, String phone, String carType, int rate, int days, String paymentMethod, String paymentDetails, int age, String startDate, String endDate) {
@@ -930,4 +924,3 @@ class ContinueScreen extends JFrame {
     }
 }
 }
-
