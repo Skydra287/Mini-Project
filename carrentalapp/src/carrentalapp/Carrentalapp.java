@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Calendar;
 import java.util.Date;
+import java.text.ParseException;
+
 
 
 
@@ -22,6 +24,72 @@ import java.util.Date;
  */
 public class Carrentalapp {
 public static Map<String, Map<String, Integer>> carAvailability = new HashMap<>();
+public static boolean updateCarAvailability(String carType, String startDate, int days) {
+    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    Calendar calendar = Calendar.getInstance();
+    StringBuilder messageBuilder = new StringBuilder(); // To store all messages
+
+    try {
+        // Parse the start date
+        Date start = sdf.parse(startDate);
+        calendar.setTime(start);
+
+        for (int i = 0; i < days; i++) {
+            String currentDate = sdf.format(calendar.getTime());
+
+            // Check if the car type and date exist
+            if (carAvailability.containsKey(carType)) {
+                Map<String, Integer> availabilityMap = carAvailability.get(carType);
+                int availableCars = availabilityMap.getOrDefault(currentDate, 0);
+
+                if (availableCars > 0) {
+                    // Decrease availability for this date
+                    availabilityMap.put(currentDate, availableCars - 1);
+
+                    // Append success message
+                    messageBuilder.append("Updated availability for ").append(carType)
+                                  .append(" on ").append(currentDate)
+                                  .append(". Remaining cars: ").append(availableCars - 1)
+                                  .append("\n");
+                } else {
+                    // Append no availability message
+                    messageBuilder.append("No ").append(carType)
+                                  .append(" available on ").append(currentDate)
+                                  .append("\n");
+                    JOptionPane.showMessageDialog(null, messageBuilder.toString(), "Availability Status", JOptionPane.WARNING_MESSAGE);
+                    return false; // If no cars available, return false
+                }
+            } else {
+                messageBuilder.append("Car type ").append(carType)
+                              .append(" not found in availability map.\n");
+                JOptionPane.showMessageDialog(null, messageBuilder.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+                return false; // Car type not found
+            }
+
+            // Move to the next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        // Show all messages on one screen after processing
+        JOptionPane.showMessageDialog(null, messageBuilder.toString(), "Availability Status", JOptionPane.INFORMATION_MESSAGE);
+        return true; // Successfully updated availability
+    } catch (ParseException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error parsing date: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
+}
+
+
+public static void printCarAvailability() {
+    System.out.println("Current Car Availability:");
+    for (String car : carAvailability.keySet()) {
+        System.out.println("Car: " + car);
+        for (Map.Entry<String, Integer> entry : carAvailability.get(car).entrySet()) {
+            System.out.println("  Date: " + entry.getKey() + ", Available: " + entry.getValue());
+        }
+    }
+}
 
 
     /**
@@ -143,49 +211,49 @@ class IDDetailsScreen extends JFrame {
 
         // Next Button
         JButton nextBtn = new JButton("Next");
-        nextBtn.addActionListener(e -> {
-            try {
-                // Retrieve input values
-                String name = nameField.getText();
-                String email = emailField.getText();
-                String phone = phoneField.getText();
-                String ageText = ageField.getText();
+       nextBtn.addActionListener(e -> {
+    try {
+        // Retrieve input values
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String phone = phoneField.getText();
+        String ageText = ageField.getText();
 
-                // Validate fields are not empty
-                if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || ageText.isEmpty()) {
-                    throw new IllegalArgumentException("All fields must be filled.");
-                }
+        // Validate fields are not empty
+        if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || ageText.isEmpty()) {
+            throw new IllegalArgumentException("All fields must be filled.");
+        }
 
-                // Validate age
-                int age = Integer.parseInt(ageText);
-                if (age <= 17) {
-                    throw new IllegalArgumentException("Invalid age: Must be 18 or older.");
-                }
+        // Validate age
+        int age = Integer.parseInt(ageText);
+        if (age <= 17) {
+            throw new IllegalArgumentException("Invalid age: Must be 18 or older.");
+        }
 
-                // Validate email format
-                if (!email.contains("@") || !email.contains(".")) {
-                    throw new IllegalArgumentException("Please enter a valid email address.");
-                }
+        // Validate email format
+        if (!email.contains("@") || !email.contains(".")) {
+            throw new IllegalArgumentException("Please enter a valid email address.");
+        }
 
-                // Validate phone number format (e.g., only digits and exactly 10 digits)
-                if (!phone.matches("\\d{10}")) {
-                    throw new IllegalArgumentException("Please enter a valid phone number (10 digits).");
-                }
+        // Validate phone number format (e.g., only digits and exactly 10 digits)
+        if (!phone.matches("\\d{10}")) {
+            throw new IllegalArgumentException("Please enter a valid phone number (10 digits).");
+        }
 
-                // If all validations pass, proceed to the CarSelectionScreen
-                dispose();
-                new CarSelectionScreen(name, email, phone, age);
-            } catch (NumberFormatException ex) {
-                // Handle invalid age input (not a number)
-                JOptionPane.showMessageDialog(this, "Please enter a valid number for age.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException ex) {
-                // Handle other validation errors
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception ex) {
-                // Handle any unexpected errors
-                JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        // If all validations pass, proceed to the RentalDurationScreen
+        dispose();
+        new RentalDurationScreen(name, email, phone, null, 0, age); // Redirect to RentalDurationScreen
+    } catch (NumberFormatException ex) {
+        // Handle invalid age input (not a number)
+        JOptionPane.showMessageDialog(this, "Please enter a valid number for age.", "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (IllegalArgumentException ex) {
+        // Handle other validation errors
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception ex) {
+        // Handle any unexpected errors
+        JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
 
         // Panel to hold the button
         JPanel buttonPanel = new JPanel();
@@ -202,14 +270,21 @@ class IDDetailsScreen extends JFrame {
 
 // Car Selection Screen class
 class CarSelectionScreen extends JFrame {
+    private String startDate; // To store the rental start date
+    private int days;         // To store the rental duration
+    private JLabel availabilityLabel;
+
+
     String name, email, phone;
     int age;
 
-    CarSelectionScreen(String name, String email, String phone, int age) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.age = age;
+    CarSelectionScreen(String name, String email, String phone, int age, String startDate, int days) {
+    this.name = name;
+    this.email = email;
+    this.phone = phone;
+    this.age = age;
+    this.startDate = startDate;
+    this.days = days;
 
         setTitle("car selection");
         setLayout(new BorderLayout());
@@ -256,20 +331,17 @@ class CarSelectionScreen extends JFrame {
         setVisible(true);
     }
 
-    private JPanel createCarOption(String carName, String description, String imagePath) {
-    // Panel for each car option
+   private JPanel createCarOption(String carName, String description, String imagePath) {
     JPanel carOptionPanel = new JPanel();
     carOptionPanel.setLayout(new BorderLayout());
     carOptionPanel.setBackground(Color.RED);
     carOptionPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    // Car Image
     ImageIcon carImageIcon = new ImageIcon(imagePath);
     Image carImage = carImageIcon.getImage().getScaledInstance(100, 50, Image.SCALE_SMOOTH);
     JLabel carImageLabel = new JLabel(new ImageIcon(carImage));
     carOptionPanel.add(carImageLabel, BorderLayout.WEST);
 
-    // Car Name and Description
     JPanel textPanel = new JPanel();
     textPanel.setLayout(new BorderLayout());
     textPanel.setBackground(Color.RED);
@@ -285,47 +357,68 @@ class CarSelectionScreen extends JFrame {
     carDescLabel.setForeground(Color.BLACK);
     textPanel.add(carDescLabel, BorderLayout.CENTER);
 
-    // Add availability info
-    String today = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
-int currentAvailability = Carrentalapp.carAvailability.getOrDefault(carName, new HashMap<>()).getOrDefault(today, 0);
-JLabel availabilityLabel = new JLabel("Available: " + currentAvailability);
-    availabilityLabel.setFont(new Font("Roboto", Font.PLAIN, 14));
-    availabilityLabel.setForeground(Color.WHITE);
-    textPanel.add(availabilityLabel, BorderLayout.SOUTH);
 
     carOptionPanel.add(textPanel, BorderLayout.CENTER);
 
-    // Action on clicking the car panel
+    // When the user clicks on this car, go to the details screen
     carOptionPanel.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseClicked(java.awt.event.MouseEvent evt) {
             openCarDetails(carName, imagePath, 50); // Adjust rate as needed
+            refreshAvailability();
+ // Refresh availability when booking happens
         }
     });
 
     return carOptionPanel;
 }
 
+   public void refreshAvailability() {
+    Component[] components = getContentPane().getComponents();
+    for (Component component : components) {
+        if (component instanceof JPanel) {
+            JPanel carOptionPanel = (JPanel) component;
+            for (Component innerComponent : carOptionPanel.getComponents()) {
+                if (innerComponent instanceof JLabel) {
+                    JLabel label = (JLabel) innerComponent;
+                    String carName = label.getText(); // Assuming the car name is set as text
+                    if (Carrentalapp.carAvailability.containsKey(carName)) {
+                        String today = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+                        int currentAvailability = Carrentalapp.carAvailability.getOrDefault(carName, new HashMap<>()).getOrDefault(today, 0);
+                        label.setText("Available: " + currentAvailability);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 
     // Method to open the Car Details screen
     void openCarDetails(String carType, String imagePath, int rate) {
-        dispose();
-        new CarDetailsScreen(name, email, phone, carType, imagePath, rate, age);
-    }
+    dispose();
+    new CarDetailsScreen(name, email, phone, carType, imagePath, rate, age, startDate, days);
+}
+
 }
 
 
 
 // Car Details Screen class
 class CarDetailsScreen extends JFrame {
-    String name, email, phone;
-    int age;
+    private String name, email, phone, carType, startDateStr;
+    private int age, rate, days;
 
-    CarDetailsScreen(String name, String email, String phone, String carType, String imagePath, int rate, int age) {
+    CarDetailsScreen(String name, String email, String phone, String carType, String imagePath, int rate, int age, String startDateStr, int days) {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.carType = carType;
+        this.rate = rate;
         this.age = age;
+        this.startDateStr = startDateStr; // Store the start date
+        this.days = days;                // Store the rental days
 
         setTitle("CAR DETAILS");
         setLayout(new BorderLayout());
@@ -345,21 +438,22 @@ class CarDetailsScreen extends JFrame {
         // Buttons Panel
         JPanel buttonPanel = new JPanel();
         JButton rentBtn = new JButton("Rent");
-rentBtn.addActionListener(e -> {
-    String selectedDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date()); // Assuming you select today's date for simplicity
-    if (Carrentalapp.carAvailability.containsKey(carType)) {
-        Map<String, Integer> availabilityMap = Carrentalapp.carAvailability.get(carType);
-        int availableCars = availabilityMap.getOrDefault(selectedDate, 0);
-        if (availableCars > 0) {
-            availabilityMap.put(selectedDate, availableCars - 1); // Decrement the availability for the selected date
-            dispose(); // Close the current screen
-            new RentalDurationScreen(name, email, phone, carType, rate, age); // Proceed to the Rental Duration Screen
-        } else {
-            JOptionPane.showMessageDialog(this, "No cars available for " + carType + " on " + selectedDate + ".", "Availability Error", JOptionPane.ERROR_MESSAGE);
-        }
+ rentBtn.addActionListener(e -> {
+    try {
+        dispose(); // Close the current screen
+
+        // Use the existing startDateStr and days fields
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new SimpleDateFormat("dd-MM-yyyy").parse(startDateStr)); // Parse the start date
+        calendar.add(Calendar.DAY_OF_MONTH, days - 1); // Calculate the end date based on the rental duration
+        String endDateStr = new SimpleDateFormat("dd-MM-yyyy").format(calendar.getTime());
+
+        // Navigate to PaymentMethodScreen
+        new PaymentMethodScreen(name, email, phone, carType, rate, days, age, startDateStr, endDateStr);
+    } catch (ParseException ex) {
+        JOptionPane.showMessageDialog(this, "Error parsing date: " + ex.getMessage(), "Date Error", JOptionPane.ERROR_MESSAGE);
     }
 });
-
 
 
         JButton detailBtn = new JButton("Check Details");
@@ -374,7 +468,7 @@ rentBtn.addActionListener(e -> {
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> {
             dispose();
-            new CarSelectionScreen(name, email, phone, age); // Pass name, email, phone, and age back
+            new CarSelectionScreen(name, email, phone, age, startDateStr, days); // Pass name, email, phone, and age back
         });
         backButtonPanel.add(backBtn);
         add(backButtonPanel, BorderLayout.NORTH);
@@ -388,8 +482,6 @@ rentBtn.addActionListener(e -> {
 }
 
 
-
-// Car Details Window class
 // Car Details Window class
 class CarDetailsWindow extends JFrame {
     CarDetailsWindow(String carType, int rate) {
@@ -402,7 +494,6 @@ int currentAvailability = Carrentalapp.carAvailability.getOrDefault(carType, new
 
         // Update the details area to include the current availability
         JTextArea detailsArea = new JTextArea("CAR TYPE: " + carType +
-            "\nAVAILABILITY: " + currentAvailability +
             "\nTRANSMISSION: MANUAL\nFUEL TYPE: PETROL\nRATE: RM" + rate + "/DAY");
         detailsArea.setEditable(false);
         add(detailsArea, BorderLayout.CENTER);
@@ -424,6 +515,9 @@ int currentAvailability = Carrentalapp.carAvailability.getOrDefault(carType, new
 
 // Rental Duration Screen class
 class RentalDurationScreen extends JFrame {
+    
+    private String startDateStr; // To store the rental start date as a string
+    private int days;
     String name, email, phone, carType;
     int rate, age;
 
@@ -482,39 +576,36 @@ class RentalDurationScreen extends JFrame {
         JButton nextBtn = new JButton("Next");
         nextBtn.setBackground(Color.GREEN);
         nextBtn.setForeground(Color.WHITE);
-       nextBtn.addActionListener(e -> {
+      nextBtn.addActionListener(e -> {
     try {
+        // Parse the number of rental days
         int days = Integer.parseInt(daysField.getText());
+
+        // Get the start date from the date chooser
         Date startDate = dateChooser.getDate();
         if (startDate == null) {
             JOptionPane.showMessageDialog(this, "Please select a start date.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // Format startDate and calculate endDate
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String startDateStr = dateFormat.format(startDate);
 
-        // Check availability for the selected start date
-        if (Carrentalapp.carAvailability.containsKey(carType)) {
-            int availableCars = Carrentalapp.carAvailability.get(carType).getOrDefault(startDateStr, 0);
-            if (availableCars == 0) {
-                JOptionPane.showMessageDialog(this, "No cars available for " + carType + " on " + startDateStr + ".", "Availability Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-
-        // Proceed to the payment screen
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
-        calendar.add(Calendar.DAY_OF_MONTH, days);
+        calendar.add(Calendar.DAY_OF_MONTH, days - 1); // Subtract 1 to include the start date in the rental period
         String endDateStr = dateFormat.format(calendar.getTime());
 
-        dispose(); // Close the current screen
-        new PaymentMethodScreen(name, email, phone, carType, rate, days, age, startDateStr, endDateStr);
+        // Proceed to the CarSelectionScreen
+        dispose();
+        new CarSelectionScreen(name, email, phone, age, startDateStr, days);
     } catch (NumberFormatException ex) {
         JOptionPane.showMessageDialog(this, "Please enter a valid number of rental days.", "Error", JOptionPane.ERROR_MESSAGE);
     }
 });
+
+
 
         buttonPanel.add(nextBtn);
 
@@ -524,7 +615,7 @@ class RentalDurationScreen extends JFrame {
         cancelBtn.setForeground(Color.WHITE);
         cancelBtn.addActionListener(e -> {
             dispose(); // Close the current screen
-            new CarSelectionScreen(name, email, phone, age); // Return to the Car Selection screen
+            new CarSelectionScreen(name, email, phone, age, startDateStr, days); // Return to the Car Selection screen
             JOptionPane.showMessageDialog(this, "Rental process canceled.", "Cancel", JOptionPane.INFORMATION_MESSAGE);
         });
         buttonPanel.add(cancelBtn);
@@ -668,62 +759,57 @@ class PaymentMethodScreen extends JFrame {
         selectedPaymentMethod = "Online Banking";
     }
 
-    // Process payment based on selected method
-    private void processPayment(String name, String email, String phone, String carType, int rate, int days, int age, String startDate, String endDate) {
+   // Process payment based on selected method
+private void processPayment(String name, String email, String phone, String carType, int rate, int days, int age, String startDate, String endDate) {
     String paymentDetails = "";
 
     try {
+        // Existing payment logic
         switch (selectedPaymentMethod) {
-                case "Card":
-                    String cardNumber = cardNumberField.getText();
-                    String cardHolder = cardHolderField.getText();
-
-                    // Validate card number contains only digits
-                    if (cardNumber.isEmpty()) {
-                        throw new IllegalArgumentException("Card number cannot be empty.");
-                    }
-
-                    if (!cardNumber.matches("\\d+")) {
-                        throw new IllegalArgumentException("Invalid card number. Please enter only numbers.");
-                    }
-
-                    if (cardHolder.isEmpty()) {
-                        throw new IllegalArgumentException("Card holder name cannot be empty.");
-                    }
-
-                    paymentDetails = "Card Payment\nCard Number: " + cardNumber + "\nCard Holder: " + cardHolder;
-                    break;
-
-                case "Cash":
-                    paymentDetails = "Cash Payment\nPlease pay when you meet.";
-                    break;
-
-                case "Online Banking":
-                    String selectedBank = (String) bankComboBox.getSelectedItem();
-                    if (selectedBank == null || selectedBank.isEmpty()) {
-                        throw new IllegalArgumentException("Please select a bank for online banking.");
-                    }
-                    paymentDetails = "Online Banking\nBank: " + selectedBank;
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Please select a payment method.");
-            }
-
-            // Proceed to the Rental Summary Screen with the payment details
-            dispose();
-            new RentalSummaryScreen(name, email, phone, carType, rate, days, selectedPaymentMethod, paymentDetails, age, startDate, endDate);
-
-
-        } catch (IllegalArgumentException e) {
-            // Display error message for invalid inputs
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            // Catch any other unexpected errors
-            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            case "Card":
+                String cardNumber = cardNumberField.getText();
+                String cardHolder = cardHolderField.getText();
+                if (cardNumber.isEmpty() || !cardNumber.matches("\\d+")) {
+                    throw new IllegalArgumentException("Invalid card number.");
+                }
+                if (cardHolder.isEmpty()) {
+                    throw new IllegalArgumentException("Card holder name cannot be empty.");
+                }
+                paymentDetails = "Card Payment\nCard Number: " + cardNumber + "\nCard Holder: " + cardHolder;
+                break;
+            case "Cash":
+                paymentDetails = "Cash Payment\nPlease pay when you meet.";
+                break;
+            case "Online Banking":
+                String selectedBank = (String) bankComboBox.getSelectedItem();
+                if (selectedBank == null || selectedBank.isEmpty()) {
+                    throw new IllegalArgumentException("Please select a bank.");
+                }
+                paymentDetails = "Online Banking\nBank: " + selectedBank;
+                break;
+            default:
+                throw new IllegalArgumentException("Please select a payment method.");
         }
+
+        // Update car availability
+        if (!Carrentalapp.updateCarAvailability(carType, startDate, days)) {
+    System.out.println("Failed to update availability for " + carType + " from " + startDate + " for " + days + " days.");
+    JOptionPane.showMessageDialog(this, "Car not available for the selected dates!", "Availability Error", JOptionPane.ERROR_MESSAGE);
+    return;
+} else {
+    System.out.println("Availability successfully updated for " + carType);
+}
+
+
+        // Proceed to RentalSummaryScreen
+        dispose();
+        new RentalSummaryScreen(name, email, phone, carType, rate, days, selectedPaymentMethod, paymentDetails, age, startDate, endDate);
+
+    } catch (IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+
 
 
 
@@ -765,10 +851,13 @@ class RentalSummaryScreen extends JFrame {
         nextBtn.setBackground(Color.RED);
         nextBtn.setForeground(Color.WHITE);
         nextBtn.setFont(new Font("Arial", Font.BOLD, 18));
+        JOptionPane.showMessageDialog(this, "Your booking has been successfully processed!", "Booking Success", JOptionPane.INFORMATION_MESSAGE);
         nextBtn.addActionListener(e -> {
-            dispose();
-            new ContinueScreen(name, email, phone, age);
+     dispose(); // Close the RentalSummaryScreen
+            new ContinueScreen(name, email, phone, age); // Navigate to the ContinueScreen
         });
+        
+        
 
         add(nextBtn, BorderLayout.SOUTH);
 
@@ -778,6 +867,11 @@ class RentalSummaryScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
+    @Override
+public void dispose() {
+    super.dispose(); // Call the parent dispose method to handle cleanup.
+}
+
 }
 
 
@@ -808,8 +902,9 @@ class ContinueScreen extends JFrame {
         yesBtn.setForeground(Color.WHITE);
         yesBtn.setFont(new Font("Arial", Font.BOLD, 14));
         yesBtn.addActionListener(e -> {
-            dispose();
-            new CarSelectionScreen(name, email, phone, age); // Redirect to Car Selection screen
+            dispose(); // Close the current screen
+            // Redirect to RentalDurationScreen
+            new RentalDurationScreen(name, email, phone, null, 0, age); // Pass necessary parameters
         });
         buttonPanel.add(yesBtn);
 
@@ -834,3 +929,5 @@ class ContinueScreen extends JFrame {
         setVisible(true);
     }
 }
+}
+
