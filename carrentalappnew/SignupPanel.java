@@ -4,8 +4,6 @@
  */
 package carrentalappnew;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.*;
 import java.util.HashMap;
 
@@ -16,23 +14,39 @@ import java.util.HashMap;
  * @author ASUS TUF
  */
 public class SignupPanel extends JPanel {
-    private WebManager webManager;
    // Static user database
     private static HashMap<String, String> userDatabase = new HashMap<>();
+      // Input fields
+    private JTextField nameField;
+    private JTextField ageField;
+    private JTextField phoneField;
+    private JPasswordField passwordField;
 
     // Getter method for userDatabase
     public static HashMap<String, String> getUserDatabase() {
         return userDatabase;
     }
+    private boolean isValidPassword(String password) {
+    // Check for at least 8 characters
+    if (password.length() < 8) return false;
+
+    // Use regular expressions to validate the password
+    boolean hasUppercase = password.matches(".*[A-Z].*");
+    boolean hasLowercase = password.matches(".*[a-z].*");
+    boolean hasSpecial = password.matches(".*[!@#$%^&*(),.?\":{}|<>].*");
+    boolean hasDigit = password.matches(".*[0-9].*");
+
+    // Ensure all conditions are met
+    return hasUppercase && hasLowercase && hasSpecial && hasDigit;
+}
 
 
     public SignupPanel(WebManager webManager) {
-        this.webManager = webManager;
         setLayout(new BorderLayout());
 
         // Top Panel
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(Color.WHITE);
+        topPanel.setBackground(new Color(184,75,75));
 
         // Add Logo
         ImageIcon logoIcon = new ImageIcon(getClass().getResource("/logo.png"));
@@ -50,54 +64,63 @@ public class SignupPanel extends JPanel {
         JLabel titleLabel = new JLabel("The Best Rental Spot For You");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setForeground(Color.RED);
+        titleLabel.setForeground(Color.WHITE);
         topPanel.add(titleLabel, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
 
         // Bottom Panel
         JPanel bottomPanel = new JPanel(null);
-        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.setBackground(new Color(184,75,75));
 
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setBounds(250, 20, 100, 30);
+        nameLabel.setForeground(Color.WHITE);
         bottomPanel.add(nameLabel);
 
-        JTextField nameField = new JTextField();
+        nameField = new JTextField();
         nameField.setBounds(320, 20, 200, 30);
         bottomPanel.add(nameField);
 
         JLabel ageLabel = new JLabel("Age:");
         ageLabel.setBounds(250, 70, 100, 30);
+        ageLabel.setForeground(Color.WHITE);
         bottomPanel.add(ageLabel);
 
-        JTextField ageField = new JTextField();
+        ageField = new JTextField();
         ageField.setBounds(320, 70, 200, 30);
         bottomPanel.add(ageField);
 
         JLabel phoneLabel = new JLabel("Phone:");
         phoneLabel.setBounds(250, 120, 100, 30);
+        phoneLabel.setForeground(Color.WHITE);
         bottomPanel.add(phoneLabel);
 
-        JTextField phoneField = new JTextField();
+        phoneField = new JTextField();
         phoneField.setBounds(320, 120, 200, 30);
         bottomPanel.add(phoneField);
 
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setBounds(250, 170, 100, 30);
+        passwordLabel.setForeground(Color.WHITE);
         bottomPanel.add(passwordLabel);
 
-        JPasswordField passwordField = new JPasswordField();
+        passwordField = new JPasswordField();
         passwordField.setBounds(320, 170, 200, 30);
         bottomPanel.add(passwordField);
 
         JButton signupButton = new JButton("Sign Up");
         signupButton.setBounds(300, 220, 90, 30);
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBackground(new Color (234,210,168));
         bottomPanel.add(signupButton);
 
         JButton backButton = new JButton("Back");
         backButton.setBounds(410, 220, 90, 30);
+        backButton.setForeground(Color.WHITE);
+        backButton.setBackground(new Color (234,210,168));
         bottomPanel.add(backButton);
+        
 
         // Action Listener for Sign Up Button
 signupButton.addActionListener(e -> {
@@ -121,6 +144,16 @@ signupButton.addActionListener(e -> {
         // Validate Password
         if (password.isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty.");
+        }
+         // Validate Password
+        if (!isValidPassword(password)) {
+            throw new IllegalArgumentException(
+                "Password must be at least 8 characters long and include:\n" +
+                "- An uppercase letter\n" +
+                "- A lowercase letter\n" +
+                "- A number\n" +
+                "- A special character (!@#$%^&* etc.)"
+            );
         }
 
         // Check if username already exists
@@ -146,5 +179,13 @@ signupButton.addActionListener(e -> {
 
         add(bottomPanel, BorderLayout.CENTER);
     }
+    // Method to reset fields
+    public void resetFields() {
+        nameField.setText(""); // Clear the name input
+        ageField.setText(""); // Clear the age input
+        phoneField.setText(""); // Clear the phone input
+        passwordField.setText(""); // Clear the password input
+    }
 }
+
 

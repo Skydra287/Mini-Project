@@ -16,16 +16,27 @@ import java.text.SimpleDateFormat;
  * @author ASUS TUF
  */
 public class WebManager {
-    private JFrame frame;            // Main frame for the application
-    private JPanel mainPanel;        // Container panel with CardLayout
-    private CardLayout cardLayout;   // Layout manager to switch between panels
+    private final JFrame frame;            // Main frame for the application
+    private final JPanel mainPanel;        // Container panel with CardLayout
+    private final CardLayout cardLayout;   // Layout manager to switch between panels
     private BookingDetails bookingDetails; // Store booking details
-    private ArrayList<BookingDetails> bookings; // Store multiple bookings (max 4)
+    private final ArrayList<BookingDetails> bookings; // Store multiple bookings (max 4)
     private String currentCar;
     private String currentUser;
-    private Map<String, Integer> carInventory; // Track car counts
-    private Map<String, List<List<DateRange>>> carBookings; // Track bookings for multiple units
+    private final Map<String, Integer> carInventory; // Track car counts
+    private final Map<String, List<List<DateRange>>> carBookings; // Track bookings for multiple units
+    private Map<String, String> userReceipts = new HashMap<>(); // To store user receipts
+    
+    
+    // Save receipt for a user
+public void saveReceipt(String username, String receipt) {
+    userReceipts.put(username, receipt);
+}
 
+// Retrieve receipt for a user
+public String getReceipt(String username) {
+    return userReceipts.getOrDefault(username, null);
+}
 public void setCurrentUser(String currentUser) {
     this.currentUser = currentUser;
 }
@@ -89,6 +100,19 @@ public void setCurrentCar(String carName) {
     
 
     public void showPanel(String panelName) {
+        
+        // Reset fields for specific panels
+    for (Component comp : mainPanel.getComponents()) {
+        if (panelName.equals("Signup") && comp instanceof SignupPanel) {
+            ((SignupPanel) comp).resetFields(); // Reset SignupPanel fields
+        } else if (panelName.equals("RentalDate") && comp instanceof RentalDatePanel) {
+            ((RentalDatePanel) comp).resetFields(); // Reset RentalDatePanel fields
+        } else if (panelName.equals("ExploreCars") && comp instanceof ExploreCarsPanel) {
+            // Optionally reset fields in ExploreCarsPanel (if needed)
+        } else if (panelName.equals("PaymentMethod") && comp instanceof PaymentMethodPanel) {
+            // Optionally reset fields in PaymentMethodPanel (if needed)
+        }
+    }
     // Check if switching to the RentalSummaryPanel
     if (panelName.equals("RentalSummary")) {
         for (Component comp : mainPanel.getComponents()) {
@@ -157,21 +181,6 @@ public void setCurrentCar(String carName) {
 
     return false; // No units available for the requested dates
 }
-
-
-public void showReceiptPanel(String paymentMethod, String paymentInfo, String bankAccount, String bankUsername) {
-    // Handle null values for optional fields
-    paymentInfo = paymentInfo == null ? "" : paymentInfo;
-    bankAccount = bankAccount == null ? "" : bankAccount;
-    bankUsername = bankUsername == null ? "" : bankUsername;
-
-    ReceiptPanel receiptPanel = new ReceiptPanel(this, paymentMethod, paymentInfo, bankAccount, bankUsername);
-    mainPanel.add(receiptPanel, "Receipt");
-    cardLayout.show(mainPanel, "Receipt");
-}
-
-
-
 
 
     // Method to cancel a booking and increment inventory

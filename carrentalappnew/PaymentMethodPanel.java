@@ -5,8 +5,6 @@
 package carrentalappnew;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -14,11 +12,27 @@ import java.awt.event.ActionListener;
  */
 public class PaymentMethodPanel extends JPanel {
     private WebManager webManager;
+    
+// Validate PayPal email
+private boolean isValidPaypalEmail(String email) {
+    return email.contains("@") && (email.endsWith(".com") || email.endsWith(".my"));
+}
+
+// Validate credit/debit card number
+private boolean isValidCardNumber(String cardNumber) {
+    return cardNumber.matches("\\d{16}"); // Exactly 16 digits
+}
+
+// Validate bank account
+private boolean isValidBankAccount(String accountNumber) {
+    return accountNumber.matches("\\d{8,12}"); // 8 to 12 digits
+}
 
     public PaymentMethodPanel(WebManager webManager) {
         this.webManager = webManager;
 
         setLayout(new GridBagLayout()); // Use GridBagLayout for centering
+        setBackground(new Color(184, 75, 75)); 
 
         // Constraints for layout
         GridBagConstraints gbc = new GridBagConstraints();
@@ -36,9 +50,13 @@ public class PaymentMethodPanel extends JPanel {
         // Payment Method Options
         ButtonGroup paymentGroup = new ButtonGroup();
         JRadioButton creditDebitButton = new JRadioButton("Credit/Debit Card");
+        creditDebitButton.setBackground(new Color(229,184,11));
         JRadioButton cashButton = new JRadioButton("Cash");
+        cashButton.setBackground(new Color(229,184,11));
         JRadioButton onlineBankingButton = new JRadioButton("Online Banking");
+        onlineBankingButton.setBackground(new Color(229,184,11));
         JRadioButton paypalButton = new JRadioButton("PayPal");
+        paypalButton.setBackground(new Color(229,184,11));
 
         paymentGroup.add(creditDebitButton);
         paymentGroup.add(cashButton);
@@ -163,6 +181,8 @@ public class PaymentMethodPanel extends JPanel {
 
         // Buttons
         JButton proceedButton = new JButton("Proceed");
+        proceedButton.setForeground(Color.WHITE);
+        proceedButton.setBackground(new Color (234,210,168));
         gbc.gridy = 8;
         gbc.gridx = 0;
         gbc.gridwidth = 1;
@@ -170,6 +190,8 @@ public class PaymentMethodPanel extends JPanel {
         add(proceedButton, gbc);
 
         JButton backButton = new JButton("Back");
+        backButton.setForeground(Color.WHITE);
+        backButton.setBackground(new Color (234,210,168));
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.LINE_START;
         add(backButton, gbc);
@@ -178,40 +200,154 @@ public class PaymentMethodPanel extends JPanel {
         backButton.addActionListener(e -> webManager.showPanel("RentalSummary"));
 
         // Proceed Button Action
-proceedButton.addActionListener(e -> {
+        proceedButton.addActionListener(e -> {
     if (creditDebitButton.isSelected()) {
-        if (dynamicField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill out the Card Number.", "Error", JOptionPane.ERROR_MESSAGE);
+        String cardNumber = dynamicField.getText().trim();
+        if (!isValidCardNumber(cardNumber)) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Invalid Card Number. It must be exactly 16 digits and contain only numbers.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
         } else {
-            webManager.showReceiptPanel("Credit/Debit Card", dynamicField.getText(), null, null);
+            showReceipt("Credit/Debit Card", cardNumber, null, null);
         }
     } else if (paypalButton.isSelected()) {
-        if (dynamicField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill out the PayPal Email.", "Error", JOptionPane.ERROR_MESSAGE);
+        String paypalEmail = dynamicField.getText().trim();
+        if (!isValidPaypalEmail(paypalEmail)) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Invalid PayPal Email. It must contain '@' and end with '.com' or '.my'.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
         } else {
-            webManager.showReceiptPanel("PayPal", dynamicField.getText(), null, null);
+            showReceipt("PayPal", paypalEmail, null, null);
         }
     } else if (cashButton.isSelected()) {
-        webManager.showReceiptPanel("Cash", "Pay on pickup", null, null);
+        showReceipt("Cash", "Pay on pickup", null, null);
     } else if (onlineBankingButton.isSelected()) {
-        if (accountField.getText().isEmpty() || usernameField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill out Bank Account and Username.", "Error", JOptionPane.ERROR_MESSAGE);
+        String bankAccount = accountField.getText().trim();
+        String bankUsername = usernameField.getText().trim();
+
+        if (bankAccount.isEmpty() || bankUsername.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Please fill out both Bank Account and Username.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+        } else if (!isValidBankAccount(bankAccount)) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Invalid Bank Account. It must be 8 to 12 digits long and contain only numbers.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
         } else {
             String selectedBank = (String) bankComboBox.getSelectedItem();
-            String bankAccount = accountField.getText().trim();
-            String bankUsername = usernameField.getText().trim();
-
-            webManager.showReceiptPanel(
-                "Online Banking (" + selectedBank + ")", // Payment method
-                null,                                   // No payment info for online banking
-                bankAccount,                            // Pass the bank account
-                bankUsername                            // Pass the bank username
-            );
+            showReceipt("Online Banking (" + selectedBank + ")", null, bankAccount, bankUsername);
         }
     } else {
-        JOptionPane.showMessageDialog(this, "Please select a payment method.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+            this, 
+            "Please select a payment method.", 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE
+        );
     }
 });
+    }
 
+     // Method to show receipt using JDialog
+    private void showReceipt(String paymentMethod, String paymentInfo, String bankAccount, String bankUsername) {
+        StringBuilder receiptText = new StringBuilder();
+
+        receiptText.append("Payment Successful!\n\n");
+        receiptText.append("Car Rental Receipt\n");
+        receiptText.append("======================\n");
+        receiptText.append("Name: ").append(webManager.getCurrentUser()).append("\n");
+
+        for (BookingDetails booking : webManager.getBookings()) {
+            int totalPrice = booking.getBasePrice() + booking.getAddOnPrice();
+            receiptText.append("Car: ").append(booking.getCarName()).append("\n");
+            receiptText.append("Rental Dates: ").append(booking.getRentalDates()).append("\n");
+            receiptText.append("Total Days: ").append(booking.getRentalDays()).append("\n");
+            receiptText.append("Base Price: RM ").append(booking.getBasePrice()).append("\n");
+            receiptText.append("Add-Ons: RM ").append(booking.getAddOnPrice()).append("\n");
+            receiptText.append("Total Price: RM ").append(totalPrice).append("\n");
+            receiptText.append("----------------------\n");
+        }
+
+        // Add grand total and payment method
+        int grandTotal = webManager.getBookings().stream().mapToInt(b -> b.getBasePrice() + b.getAddOnPrice()).sum();
+        receiptText.append("Grand Total: RM ").append(grandTotal).append("\n");
+        receiptText.append("Payment Method: ").append(paymentMethod).append("\n");
+
+        // Add banking details if applicable
+        if (paymentMethod.contains("Online Banking")) {
+            receiptText.append("Bank Account: ").append(bankAccount != null ? bankAccount : "N/A").append("\n");
+            receiptText.append("Bank Username: ").append(bankUsername != null ? bankUsername : "N/A").append("\n");
+        } else if (paymentMethod.equals("Credit/Debit Card") || paymentMethod.equals("PayPal")) {
+            receiptText.append("Payment Info: ").append(paymentInfo).append("\n");
+        }
+
+        // Add "Car is ready to pick up" message
+       receiptText.append("Your car is ready to pick up at 6 AM on the rental date.\n");
+
+        // Save receipt for the user
+        webManager.saveReceipt(webManager.getCurrentUser(), receiptText.toString());
+
+
+        // Create custom dialog for receipt
+        JDialog dialog = new JDialog((Frame) null, "Receipt", true);
+        dialog.setSize(400, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        JTextArea textArea = new JTextArea(receiptText.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        dialog.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        
+        JPanel buttonPanel = new JPanel();
+        JButton backButton = new JButton("Back to Menu");
+        JButton exitButton = new JButton("Exit");
+        JButton logoutButton = new JButton("Log Out");
+        buttonPanel.add(backButton);
+        buttonPanel.add(logoutButton);
+        buttonPanel.add(exitButton);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Back Button Action
+        backButton.addActionListener(e -> {
+            webManager.getBookings().clear();
+            webManager.showPanel("ExploreCars");
+            dialog.dispose();
+        });
+
+        // Logout Button Action
+        logoutButton.addActionListener(e -> {
+            webManager.getBookings().clear();
+            webManager.showPanel("Login");
+            dialog.dispose();
+        });
+
+        // Exit Button Action
+        exitButton.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(dialog, "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+
+        dialog.setVisible(true);
     }
 }
+
+
+
+
+

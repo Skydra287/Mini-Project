@@ -5,8 +5,6 @@
 package carrentalappnew;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import com.toedter.calendar.JDateChooser;
 import java.util.HashMap;
 import java.util.Date;
@@ -24,15 +22,29 @@ public class RentalDatePanel extends JPanel {
     private JLabel statusLabel;
     private JDateChooser startDateChooser;
     private JTextField rentalDaysField;
+    private JCheckBox gpsCheckbox;
+    private JCheckBox insuranceCheckbox;
+    private JCheckBox childSeatCheckbox;
 
     public RentalDatePanel(WebManager webManager) {
         this.webManager = webManager;
         setLayout(null);
+        setBackground(new Color(184, 75, 75)); // Set background color for the entire panel
         
-        // Initialize and add the start date chooser
-        startDateChooser = new JDateChooser();
-        startDateChooser.setBounds(550, 100, 150, 30);
-        add(startDateChooser);
+      // Initialize and add the start date chooser
+    startDateChooser = new JDateChooser();
+    startDateChooser.setBounds(550, 100, 150, 30);
+
+    // Prevent selection of past dates
+    startDateChooser.setMinSelectableDate(new Date()); // Today's date as the minimum selectable date
+
+    // Disable manual entry in the date chooser
+    startDateChooser.getDateEditor().setEnabled(false);
+
+    // Optionally set today's date as default
+    startDateChooser.setDate(new Date());
+
+    add(startDateChooser);
 
         // Initialize and add the rental days field
         rentalDaysField = new JTextField();
@@ -49,13 +61,16 @@ public class RentalDatePanel extends JPanel {
     // Create a panel with a red border
     JPanel redBoxPanel = new JPanel();
     redBoxPanel.setBounds(40, 15, 340, 45); // Set position and size for the red box
-    redBoxPanel.setBorder(BorderFactory.createLineBorder(Color.RED, 5)); // Red border with thickness 3
+    redBoxPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5)); // Red border with thickness 3
+    redBoxPanel.setBackground(new Color(184, 75, 75));
     redBoxPanel.setLayout(null); // Use absolute positioning for inner components
 
         // Initialize and add the selected car label
         selectedCarLabel = new JLabel("Selected Car: Not selected");
         selectedCarLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         selectedCarLabel.setBounds(50, 20, 400, 30);
+        selectedCarLabel.setForeground(Color.BLACK);
+        selectedCarLabel.setBackground(new Color(184, 75, 75));
         add(selectedCarLabel);
         
          add(redBoxPanel);
@@ -73,7 +88,7 @@ public class RentalDatePanel extends JPanel {
         // "Luxury is for all" with Icon
         JLabel luxuryLabel = new JLabel("Luxury is for all", diamondIcon, JLabel.LEFT);
         luxuryLabel.setFont(new Font("ROBOTO", Font.BOLD, 24));
-        luxuryLabel.setForeground(Color.BLACK);
+        luxuryLabel.setForeground(Color.WHITE);
         luxuryLabel.setBounds(475, 260, 300, 30); // Adjust size and position as needed
         add(luxuryLabel);
         
@@ -85,25 +100,25 @@ public class RentalDatePanel extends JPanel {
         // "Easy Process" with Hand Icon
         JLabel easyLabel = new JLabel("Easy Process", handIcon, JLabel.LEFT);
         easyLabel.setFont(new Font("ROBOTO", Font.BOLD, 24));
-        easyLabel.setForeground(Color.BLACK);
+        easyLabel.setForeground(Color.WHITE);
         easyLabel.setBounds(475, 300, 300, 30); // Adjust size and position as needed
         add(easyLabel);
 
         JLabel DescLabel = new JLabel("The Most Premium ");
         DescLabel.setFont(new Font("ROBOTO", Font.BOLD, 24));
-        DescLabel.setForeground(Color.RED);
+        DescLabel.setForeground(Color.WHITE);
         DescLabel.setBounds(30, 80, 240, 30);
         add(DescLabel);
 
         JLabel DescLabel2 = new JLabel("Car You Can Get");
         DescLabel2.setFont(new Font("ROBOTO", Font.BOLD, 24));
-        DescLabel2.setForeground(Color.RED);
+        DescLabel2.setForeground(Color.WHITE);
         DescLabel2.setBounds(30, 110, 240, 30);
         add(DescLabel2);
         
         JLabel DescLabel3 = new JLabel("Why Choose us?");
         DescLabel3.setFont(new Font("ROBOTO", Font.BOLD, 24));
-        DescLabel3.setForeground(Color.BLUE);
+        DescLabel3.setForeground(Color.BLACK);
         DescLabel3.setBounds(480, 225, 240, 30);
         add(DescLabel3);
 
@@ -111,12 +126,14 @@ public class RentalDatePanel extends JPanel {
         // Rental Days Label and Field
         JLabel rentalDaysLabel = new JLabel("Enter rental days:");
         rentalDaysLabel.setBounds(450, 50, 150, 30);
+        rentalDaysLabel.setForeground(Color.WHITE);
         add(rentalDaysLabel);
 
 
         // Start Date Label and Field
         JLabel startDateLabel = new JLabel("Select start date:");
         startDateLabel.setBounds(450, 100, 150, 30);
+        startDateLabel.setForeground(Color.WHITE);
         add(startDateLabel);
 
         // Clock Icon
@@ -126,16 +143,22 @@ public class RentalDatePanel extends JPanel {
         add(clockLabel);
         
         // Additional Options with Checkboxes
-        JCheckBox gpsCheckbox = new JCheckBox("GPS (RM 50/day)");
+        gpsCheckbox = new JCheckBox("GPS (RM 50/day)");
         gpsCheckbox.setBounds(50, 150, 150, 30);
+        gpsCheckbox.setForeground(Color.WHITE);
+        gpsCheckbox.setBackground(new Color(184, 75, 75));
         add(gpsCheckbox);
 
-        JCheckBox insuranceCheckbox = new JCheckBox("Insurance (RM 100/day)");
+        insuranceCheckbox = new JCheckBox("Insurance (RM 100/day)");
         insuranceCheckbox.setBounds(50, 190, 220, 30);
+        insuranceCheckbox.setForeground(Color.WHITE);
+        insuranceCheckbox.setBackground(new Color(184, 75, 75));
         add(insuranceCheckbox);
 
-        JCheckBox childSeatCheckbox = new JCheckBox("Child Seat (RM 30/day)");
+        childSeatCheckbox = new JCheckBox("Child Seat (RM 30/day)");
         childSeatCheckbox.setBounds(50, 230, 220, 30);
+        childSeatCheckbox.setForeground(Color.WHITE);
+        childSeatCheckbox.setBackground(new Color(184, 75, 75));
         add(childSeatCheckbox);
         
        // Add status label to display car availability
@@ -152,6 +175,8 @@ public class RentalDatePanel extends JPanel {
         // Next Button
     JButton nextButton = new JButton("Next");
     nextButton.setBounds(600, 450, 100, 30); // Set position and size
+    nextButton.setForeground(Color.BLACK);
+    nextButton.setBackground(new Color (234,210,168));
     add(nextButton); // Add to the panel
     nextButton.addActionListener(e -> {
     // Get input values
@@ -160,7 +185,7 @@ public class RentalDatePanel extends JPanel {
 
     // Validate inputs
     if (rentalDaysText.isEmpty() || startDate == null) {
-        JOptionPane.showMessageDialog(this, "Please fill out all fields.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Please fill or choose out all fields correctly", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
 
@@ -250,6 +275,8 @@ public class RentalDatePanel extends JPanel {
         // Back Button
         JButton backButton = new JButton("Back");
         backButton.setBounds(450, 450, 100, 30);
+        backButton.setForeground(Color.BLACK);
+        backButton.setBackground(new Color (234,210,168));
         add(backButton);
 
         backButton.addActionListener(e -> webManager.showPanel("ExploreCars"));
@@ -267,64 +294,36 @@ public class RentalDatePanel extends JPanel {
         } else {
             carImageLabel.setIcon(null); // Clear the image if no car is selected
         }
+  
     }
-    private Date getSelectedStartDate() {
-        return startDateChooser.getDate(); // Fetch the selected date
-    }
-
-    private int getSelectedRentalDays() {
-        try {
-            return Integer.parseInt(rentalDaysField.getText().trim()); // Parse the number
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number of days.", "Error", JOptionPane.ERROR_MESSAGE);
-            return -1; // Handle the error appropriately
-        }
-    }
-
-   private void checkAvailabilityAndUpdateGUI() {
-    String car = webManager.getCurrentCar();
-    Date startDate = getSelectedStartDate(); // Fetch from date picker
-    int rentalDays = getSelectedRentalDays(); // Fetch from input field
-
-    if (rentalDays == -1 || startDate == null) {
-        statusLabel.setText("Error: Please fill out all fields correctly.");
-        statusLabel.setVisible(true);
-        return;
-    }
-
-    // Check availability
-    if (!webManager.isAvailable(car, startDate, rentalDays)) {
-        statusLabel.setText("Error: Car not available for the selected dates.");
-        statusLabel.setForeground(Color.RED);
-        statusLabel.setVisible(true);
-    } else {
-        statusLabel.setText("Car is available.");
-        statusLabel.setForeground(Color.GREEN);
-        statusLabel.setVisible(true);
-    }
-
-    revalidate();
-    repaint();
-}
 
    public void refreshCarAvailability() {
     String car = webManager.getCurrentCar();
+    
     if (car != null) {
         int available = webManager.getCarInventory(car);
+
         if (available <= 0) {
             statusLabel.setText("Car is unavailable.");
             statusLabel.setForeground(Color.RED);
-        } else {
-            statusLabel.setText("Car is available. " + available + " remaining.");
-            statusLabel.setForeground(Color.GREEN);
-        }
-        statusLabel.setVisible(true);
+        } 
     } else {
         statusLabel.setText("No car selected.");
         statusLabel.setForeground(Color.RED);
         statusLabel.setVisible(true);
+         revalidate();
+    repaint();
     }
+    
 }
+   public void resetFields() {
+    startDateChooser.setDate(null); // Clear selected date
+    rentalDaysField.setText("");    // Clear rental days input
+    gpsCheckbox.setSelected(false); // Uncheck GPS option
+    insuranceCheckbox.setSelected(false); // Uncheck Insurance option
+    childSeatCheckbox.setSelected(false); // Uncheck Child Seat option
+}
+
 
 
 

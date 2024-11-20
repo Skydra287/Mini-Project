@@ -5,8 +5,6 @@
 package carrentalappnew;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -18,6 +16,7 @@ public class RentalSummaryPanel extends JPanel {
     public RentalSummaryPanel(WebManager webManager) {
         this.webManager = webManager;
         setLayout(new BorderLayout());
+        setBackground(new Color(184, 75, 75));
         updateSummary(); // Populate the summary initially
     }
 
@@ -28,6 +27,7 @@ public class RentalSummaryPanel extends JPanel {
         // Title
         JLabel titleLabel = new JLabel("Rental Summary", SwingConstants.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
         add(titleLabel, BorderLayout.NORTH);
 
         // Bookings List
@@ -39,6 +39,7 @@ public class RentalSummaryPanel extends JPanel {
 
         for (BookingDetails booking : webManager.getBookings()) {
     JPanel bookingPanel = new JPanel(new BorderLayout()); // Panel for each booking
+    bookingPanel.setBackground(new Color(184, 75, 75));
     JLabel bookingLabel = new JLabel(
         "<html>Car: " + booking.carName + "<br>" +
         "Rental Dates: " + booking.rentalDates + "<br>" +
@@ -47,11 +48,14 @@ public class RentalSummaryPanel extends JPanel {
         "Add-On Price: RM " + booking.getAddOnPrice() + "<br>" + // Add-on price
         "Total Price: RM " + (booking.getBasePrice() + booking.getAddOnPrice()) + "</html>" // Total for this booking
     );
-    bookingLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+    bookingLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+    bookingLabel.setForeground(Color.WHITE);
     bookingPanel.add(bookingLabel, BorderLayout.CENTER);
 
     // Add delete button for each booking
     JButton deleteButton = new JButton("Delete");
+    deleteButton.setForeground(Color.BLACK);
+    deleteButton.setBackground(Color.RED);
     deleteButton.addActionListener(e -> {
     webManager.cancelBooking(booking);
     webManager.getBookings().remove(booking);
@@ -82,16 +86,23 @@ public class RentalSummaryPanel extends JPanel {
     SwingConstants.CENTER
 );
 totalLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+totalLabel.setForeground(Color.WHITE);
+totalLabel.setBackground(new Color(184, 75, 75));
 buttonsPanel.add(totalLabel, BorderLayout.NORTH);
 
 
         // Navigation Buttons
         JPanel actionButtons = new JPanel();
+        actionButtons.setBackground(new Color(184, 75, 75));
         JButton backButton = new JButton("Add Car");
+        backButton.setForeground(Color.BLACK);
+        backButton.setBackground(new Color (234,210,168));
         backButton.addActionListener(e -> webManager.showPanel("ExploreCars"));
         actionButtons.add(backButton);
 
         JButton payButton = new JButton("Pay");
+        payButton.setForeground(Color.BLACK);
+        payButton.setBackground(new Color (234,210,168));
        payButton.addActionListener(e -> {
     if (webManager.getBookings().isEmpty()) {
         JOptionPane.showMessageDialog(
@@ -125,6 +136,7 @@ buttonsPanel.add(totalLabel, BorderLayout.NORTH);
         actionButtons.add(payButton);
 
         buttonsPanel.add(actionButtons, BorderLayout.SOUTH);
+        buttonsPanel.setBackground(Color.BLACK);
 
         add(buttonsPanel, BorderLayout.SOUTH);
 

@@ -4,12 +4,9 @@
  */
 package carrentalappnew;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.*;
-import java.util.HashSet;
 import carrentalappnew.SignupPanel;
-import java.text.SimpleDateFormat;
+
 
 
 
@@ -18,18 +15,14 @@ import java.text.SimpleDateFormat;
  * @author ASUS TUF
  */
 public class LoginPanel extends JPanel {
-    private WebManager webManager;
-
-    // Simulated database to store registered usernames
-    private static HashSet<String> registeredUsers = new HashSet<>();
+    
 
     public LoginPanel(WebManager webManager) {
-        this.webManager = webManager;
         setLayout(new BorderLayout());
 
         // Top Panel with Logo and Title
         JPanel topPanel = new JPanel();
-        topPanel.setBackground(Color.WHITE);
+        topPanel.setBackground(new Color(184,75,75));
         topPanel.setLayout(new BorderLayout());
 
         // Add Logo
@@ -43,22 +36,23 @@ public class LoginPanel extends JPanel {
         JLabel titleLabel = new JLabel("The Best Rental Spot For You");
         titleLabel.setFont(new Font("ROBOTO", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setForeground(Color.RED);
+        titleLabel.setForeground(Color.WHITE);
         topPanel.add(titleLabel, BorderLayout.SOUTH);
-
         add(topPanel, BorderLayout.NORTH);
 
         // Bottom Panel with Login Fields and Buttons
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(null);
-        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.setBackground(new Color(184,75,75));
         
         JLabel syaratLogin = new JLabel("please sign up if you dont have an account");
         syaratLogin.setBounds(280, 150, 300, 30);
+        syaratLogin.setForeground(Color.WHITE);
         bottomPanel.add(syaratLogin);
 
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setBounds(250, 20, 100, 30);
+        usernameLabel.setForeground(Color.WHITE);
         bottomPanel.add(usernameLabel);
 
         JTextField usernameField = new JTextField();
@@ -67,6 +61,7 @@ public class LoginPanel extends JPanel {
 
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setBounds(250, 70, 100, 30);
+        passwordLabel.setForeground(Color.WHITE);
         bottomPanel.add(passwordLabel);
 
         JPasswordField passwordField = new JPasswordField();
@@ -75,10 +70,14 @@ public class LoginPanel extends JPanel {
 
         JButton signupButton = new JButton("Sign Up");
         signupButton.setBounds(300, 120, 90, 30);
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBackground(new Color (234,210,168));
         bottomPanel.add(signupButton);
 
         JButton loginButton = new JButton("Login");
         loginButton.setBounds(410, 120, 90, 30);
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setBackground(new Color (234,210,168));
         bottomPanel.add(loginButton);
 
         // Action Listener for Sign Up Button
@@ -86,9 +85,6 @@ public class LoginPanel extends JPanel {
 
         // Action Listener for Login Button
         loginButton.addActionListener(e -> {
-            String currentUser = webManager.getCurrentUser();
-            String userPhone = SignupPanel.getUserDatabase().get(currentUser); // Fetch phone number
-
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim(); // Get the password
 
@@ -127,8 +123,5 @@ public class LoginPanel extends JPanel {
         add(bottomPanel, BorderLayout.CENTER);
     }
 
-    // Static method to register a user
-    public static void registerUser(String username) {
-        registeredUsers.add(username);
-    }
+    
 }
